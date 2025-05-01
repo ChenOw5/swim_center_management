@@ -1,10 +1,14 @@
-package Coursework_35155752;
+package chark_swimming_center;
 
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -13,32 +17,45 @@ import java.time.LocalTime;
 import java.util.Date;
 import java.util.Iterator;
 
-public class rescheduleSession extends Application {
+public class viewBooked extends Application {
     private String user_email;
     private VBox main_vbox;
+    private Stage stage;
     private TableView<Session> tableView;
+    private HBox buttonBox;
+    private Button futureSessions;
+    private Button pastSessions;
+    private Button delSessions;
 
-    public rescheduleSession(String user_email) {
+    public viewBooked(String user_email) {
         this.user_email = user_email;
     }
 
     public VBox createViewBooked() {
         main_vbox = new VBox();
-        main_vbox.setAlignment(Pos.CENTER);
         main_vbox.setSpacing(10);
 
-        Button selectSession = new Button("Reschedule Session");
-        selectSession.setStyle("-fx-background-color: darkblue;" +
+        futureSessions = new Button("View Future Sessions");
+        pastSessions = new Button("View Past Sessions");
+        delSessions = new Button("Delete Past Sessions");
+
+        String buttonStyle = "-fx-background-color: darkblue;" +
                 "-fx-text-fill: white;" +
                 "-fx-font-size: 15px;" +
-                "-fx-text-alignment: center;");
-        selectSession.setOnAction(event -> clickedSelectSession());
+                "-fx-text-alignment: center;";
+
+        futureSessions.setStyle(buttonStyle);
+        pastSessions.setStyle(buttonStyle);
+        delSessions.setStyle(buttonStyle);
+
+        buttonBox = new HBox(10, pastSessions);
+        buttonBox.setAlignment(Pos.CENTER);
 
         tableView = new TableView<>();
         tableView.setStyle("-fx-font-size: 14px; " +
                 "-fx-text-fill: darkblue;");
 
-        TableColumn<Session, Date> idCol = new TableColumn<>("ID");
+        TableColumn<Session, Integer> idCol = new TableColumn<>("ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("sessionId"));
         idCol.setMinWidth(65);
 
@@ -68,16 +85,28 @@ public class rescheduleSession extends Application {
 
         tableView.getColumns().addAll(idCol, dateCol, startCol, endCol, paxCol, amountCol, methodCol);
 
-        ObservableList<Session> sessionList = SQLConnection.getBookedSessions(user_email);
+        showFutureSessions();
 
+        futureSessions.setOnAction(e -> showFutureSessions());
+        pastSessions.setOnAction(e -> showPastSessions());
+        delSessions.setOnAction(e -> deletePastSessions());
+
+        VBox.setVgrow(tableView, Priority.ALWAYS);
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableView.getColumns().forEach(col -> col.setReorderable(false));
+
+        main_vbox.getChildren().addAll(tableView, buttonBox);
+        return main_vbox;
+    }
+
+    private void showFutureSessions() {
+        ObservableList<Session> sessionList = SQLConnection.getBookedSessions(user_email);
         LocalDate today = LocalDate.now();
-        int now = LocalTime.now().getHour() + 6;
+        int now = LocalTime.now().getHour();
 
         Iterator<Session> it = sessionList.iterator();
-
         while (it.hasNext()) {
             Session session = it.next();
-
             LocalDate sessionDate = session.getSessionDate().toLocalDate();
             LocalTime time = LocalTime.parse(session.getStartTime());
             int hour = time.getHour();
@@ -86,49 +115,39 @@ public class rescheduleSession extends Application {
                 it.remove();
             }
         }
-
         tableView.setItems(sessionList);
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        tableView.getColumns().forEach(col -> col.setReorderable(false));
-
-        main_vbox.getChildren().addAll(tableView, selectSession);
-        return main_vbox;
+        buttonBox.getChildren().setAll(pastSessions);
     }
 
-    private void clickedSelectSession() {
+    private void showPastSessions() {
+        ObservableList<Session> sessionList = SQLConnection.getBookedSessions(user_email);
+        LocalDate today = LocalDate.now();
+        int now = LocalTime.now().getHour();
+
+        Iterator<Session> it = sessionList.iterator();
+        while (it.hasNext()) {
+            Session session = it.next();
+            LocalDate sessionDate = session.getSessionDate().toLocalDate();
+            LocalTime time = LocalTime.parse(session.getStartTime());
+            int hour = time.getHour();
+
+            if (sessionDate.isAfter(today) || (sessionDate.isEqual(today) && now < hour)) {
+                it.remove();
+            }
+        }
+        tableView.setItems(sessionList);
+        buttonBox.getChildren().setAll(futureSessions, delSessions);
+    }
+
+    private void deletePastSessions() {
         tableView = (TableView<Session>) main_vbox.getChildren().get(0);
         Session selectedSession = tableView.getSelectionModel().getSelectedItem();
 
         if (selectedSession != null) {
             int session_id = selectedSession.getSessionId();
-            LocalDate date = selectedSession.getSessionDate().toLocalDate();
-            String startTime = selectedSession.getStartTime();
-            String endTime = selectedSession.getEndTime();
-
-            int startHour = Integer.parseInt(startTime.split(":")[0]);
-            int endHour = Integer.parseInt(endTime.split(":")[0]);
-            int duration = endHour - startHour;
-
-            rescheduleSession_stage reschedule_stage = new rescheduleSession_stage(this, session_id, date, startHour, endHour, duration);
-            Stage currentStage = (Stage) main_vbox.getScene().getWindow();
-            reschedule_stage.createRescheduleStage(currentStage);
+            SQLConnection.softDeleteSession(session_id);
+            showPastSessions();
         }
-    }
-
-    public void refreshTable() {
-        ObservableList<Session> sessionList = SQLConnection.getBookedSessions(user_email);
-
-        LocalDate today = LocalDate.now();
-        int now = LocalTime.now().getHour() + 6;
-
-        sessionList.removeIf(session -> {
-            LocalDate sessionDate = session.getSessionDate().toLocalDate();
-            LocalTime time = LocalTime.parse(session.getStartTime());
-            int hour = time.getHour();
-
-            return sessionDate.isBefore(today) || (sessionDate.isEqual(today) && now >= hour);
-        });
-        tableView.setItems(sessionList);
     }
 
     @Override

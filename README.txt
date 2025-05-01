@@ -11,12 +11,12 @@ HOW TO RUN THE PROGRAM IN INTELLIJ
 
 0. Open IntelliJ
 1. File -> Open Project
-2. Select and Open 1322_Coursework_35155752\chark_swimming
+2. Select and Open swimcenter_management\chark_swimming
 3. File -> Project Structure -> Modules -> Dependencies
 4. Click the "+" Icon -> JAR or Directories
 5. Select 1322_Coursework_35155752\dependency\mysql-connector-j-9.2.0.jar (the SQL Connector JAR File attached inside the dependency file)
 6. Click OK 
-7. In Chark Swimming, go to src -> main -> java -> Coursework_35155752 -> Main.java
+7. In Chark Swimming, go to src -> main -> java -> chark_swimming_center -> Main.java
 8. Run Main.java
 
 RUNNING THE PROGRAM AGAIN

@@ -1,4 +1,4 @@
-module com.example.Coursework_35155752 {
+module com.example.chark_swimming_center {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
@@ -14,6 +14,6 @@ module com.example.Coursework_35155752 {
     requires jdk.xml.dom;
     requires java.sql;
 
-    exports Coursework_35155752;
-    opens Coursework_35155752 to javafx.graphics, javafx.fxml;
+    exports chark_swimming_center;
+    opens chark_swimming_center to javafx.graphics, javafx.fxml;
 }

@@ -1,4 +1,4 @@
-package Coursework_35155752;
+package chark_swimming_center;
 
 import com.almasb.fxgl.cutscene.dialogue.SerializableChoiceNode;
 import javafx.application.Application;

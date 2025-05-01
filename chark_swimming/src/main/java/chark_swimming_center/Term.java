@@ -1,4 +1,4 @@
-package Coursework_35155752;
+package chark_swimming_center;
 
 public class Term {
     private final int term_id;

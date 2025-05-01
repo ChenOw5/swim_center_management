@@ -1,4 +1,4 @@
-package Coursework_35155752;
+package chark_swimming_center;
 
 import javafx.geometry.Pos;
 import javafx.scene.Scene;

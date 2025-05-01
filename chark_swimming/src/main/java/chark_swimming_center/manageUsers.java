@@ -1,4 +1,4 @@
-package Coursework_35155752;
+package chark_swimming_center;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,7 +10,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.util.Date;
 import java.util.List;
 
 public class manageUsers {

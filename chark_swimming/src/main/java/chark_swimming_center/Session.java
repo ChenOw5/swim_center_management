@@ -1,6 +1,5 @@
-package Coursework_35155752;
+package chark_swimming_center;
 
-import javax.swing.event.ListDataListener;
 import java.sql.Date;
 
 public class Session {

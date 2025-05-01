@@ -1,4 +1,4 @@
-package Coursework_35155752;
+package chark_swimming_center;
 
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -11,22 +11,23 @@ import javafx.stage.Stage;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
 
-public class bookSession extends Application {
-    private String user_email;
+public class bookSession_admin extends Application {
+    private String admin_email;
+    private String email;
     private VBox main_vbox;
     private double totalPrice;
     private DatePicker selectDate;
     private ComboBox<Integer> selectPax;
     private Spinner<Integer> selectStartHour;
     private Spinner<Integer> selectEndHour;
+    private TextField enterEmail;
     private Label priceLabel;
     private Label error_label;
     private CheckBox tnc_check;
 
-    public bookSession(String user_email) {
-        this.user_email = user_email;
+    public bookSession_admin(String user_email) {
+        this.admin_email = user_email;
     }
 
     @Override
@@ -67,7 +68,11 @@ public class bookSession extends Application {
         HBox hbox6 = new HBox();
         hbox6.setAlignment(Pos.CENTER);
         hbox6.setSpacing(5);
+        HBox hbox7 = new HBox();
+        hbox7.setAlignment(Pos.CENTER);
+        hbox7.setSpacing(5);
 
+        enterEmail = new TextField();
         selectDate = new DatePicker();
         selectPax = new ComboBox<>();
         selectStartHour = new Spinner<>(8, 21, 8);
@@ -117,11 +122,12 @@ public class bookSession extends Application {
             termsStage.show();
         });
 
-        Label label0 = new Label("Select Date: ");
-        Label label1 = new Label("Select Start Hour: ");
-        Label label2 = new Label("Select End Hour: ");
-        Label label3 = new Label("Select Pax: ");
-        Label label4 = new Label("I agree to the");
+        Label label0 = new Label("Enter User's Email: ");
+        Label label1 = new Label("Select Date: ");
+        Label label2 = new Label("Select Start Hour: ");
+        Label label3 = new Label("Select End Hour: ");
+        Label label4 = new Label("Select Pax: ");
+        Label label5 = new Label("I agree to the");
 
         Label[] labels = {label0, label1, label2, label3, label4};
         for (Label lbl : labels) {
@@ -129,12 +135,13 @@ public class bookSession extends Application {
         }
 
         hbox0.getChildren().addAll(error_label);
-        hbox1.getChildren().addAll(label0, selectDate);
-        hbox2.getChildren().addAll(label1, selectStartHour);
-        hbox3.getChildren().addAll(label2, selectEndHour);
-        hbox4.getChildren().addAll(label3, selectPax);
-        hbox5.getChildren().addAll(priceLabel);
-        hbox6.getChildren().addAll(tnc_check, label4, linkLabel);
+        hbox1.getChildren().addAll(label0, enterEmail);
+        hbox2.getChildren().addAll(label1, selectDate);
+        hbox3.getChildren().addAll(label2, selectStartHour);
+        hbox4.getChildren().addAll(label3, selectEndHour);
+        hbox5.getChildren().addAll(label4, selectPax);
+        hbox6.getChildren().addAll(priceLabel);
+        hbox7.getChildren().addAll(tnc_check, label5, linkLabel);
 
         selectPax.valueProperty().addListener((obs, oldVal, newVal) -> {
             resetErrorLabel();
@@ -161,18 +168,11 @@ public class bookSession extends Application {
             }
         });
 
-        main_vbox.getChildren().addAll(error_label, hbox1, hbox2, hbox3, hbox4, hbox5, hbox6, confirmPayment);
-        main_vbox.setMinWidth(800);
+        main_vbox.getChildren().addAll(error_label, hbox1, hbox2, hbox3, hbox4, hbox5, hbox6, hbox7, confirmPayment);
         main_vbox.setAlignment(Pos.CENTER);
 
         return main_vbox;
     }
-
-    private void resetErrorLabel() {
-        error_label.setText("Enter Booking Details");
-        error_label.setTextFill(Color.BLACK);
-    }
-
     private void adjustStartHour() {
         if (selectStartHour.getValue() >= selectEndHour.getValue()) {
             selectEndHour.getValueFactory().setValue(selectStartHour.getValue() + 1);
@@ -189,13 +189,23 @@ public class bookSession extends Application {
         totalPrice = (selectEndHour.getValue() - selectStartHour.getValue()) * 15 * selectPax.getValue();
         priceLabel.setText(String.format("Total Amount: %.2f", totalPrice));
     }
+    private void resetErrorLabel() {
+        error_label.setText("Enter Booking Details");
+        error_label.setTextFill(Color.BLACK);
+    }
 
     private void clickedConfirm() {
         LocalDate currentDate = LocalDate.now();
         int localHour = LocalTime.now().getHour();
         int startHourValue = selectStartHour.getValue();
-        int endHourValue = selectEndHour.getValue();
-        if (selectDate.getValue() == null) {
+        email = enterEmail.getText();
+        if (email.isEmpty()) {
+            error_label.setText("Please Enter An Existing User's Email");
+            error_label.setTextFill(Color.RED);
+        } else if (!SQLConnection.EmailExist(email)) {
+            error_label.setText("Please Enter A Existing User's Email");
+            error_label.setTextFill(Color.RED);
+        } else if (selectDate.getValue() == null) {
             error_label.setText("Please Select A Date");
             error_label.setTextFill(Color.RED);
         } else if (currentDate.isAfter(selectDate.getValue())) {
@@ -211,15 +221,14 @@ public class bookSession extends Application {
             error_label.setText("Please Agree to The Terms and Conditions");
             error_label.setTextFill(Color.RED);
         } else {
-            Payment paymentClass = new Payment(totalPrice, user_email, this);
+            Payment paymentClass = new Payment(totalPrice, email, this);
             Stage currentStage = (Stage) main_vbox.getScene().getWindow();
             paymentClass.createPaymentStage(currentStage);
         }
     }
 
     public void SQLbookSession(int payment_check) {
-        SQLConnection.BookSession(user_email, selectDate.getValue(), selectStartHour.getValue() * 10000, selectEndHour.getValue() * 10000, selectPax.getValue(), payment_check);
-
+        SQLConnection.BookSession(email, selectDate.getValue(), selectStartHour.getValue() * 10000, selectEndHour.getValue() * 10000, selectPax.getValue(), payment_check);
     }
 
     public static void main(String[] args) {

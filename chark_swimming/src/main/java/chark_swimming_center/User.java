@@ -1,4 +1,4 @@
-package Coursework_35155752;
+package chark_swimming_center;
 
 public class User {
     private final String user_email;
