@@ -137,6 +137,13 @@ public class AdminMenu extends Application {
             page = 10;
         }
     }
+    public void clickedUser(String user_email) {
+        editProfile editProfileClass = new editProfile(SQLConnection.getUsername(user_email), user_email, this);
+        main_stackpane.getChildren().clear();
+
+        main_stackpane.getChildren().add(editProfileClass.createEditProfile());
+        page = 10;
+    }
 
     public void createHeader() {
         Header header = new Header();
