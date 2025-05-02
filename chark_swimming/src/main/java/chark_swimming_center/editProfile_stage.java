@@ -117,7 +117,7 @@ public class editProfile_stage {
             userMenu.clickedUser(user_email);
         } else {
             adminMenu.createHeader();
-            adminMenu.clickedUser();
+            adminMenu.clickedUser(user_email);
         }
 
         profile_stage.close();
